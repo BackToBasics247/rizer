@@ -8,6 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from src.models.baseModel import Base
 
+
 class User(Base):
     __tablename__ = "users"
 

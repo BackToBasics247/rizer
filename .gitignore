@@ -137,3 +137,5 @@ docker-compose.override.yml
 
 *.bak
 *.tmp
+
+db_init.py

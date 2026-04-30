@@ -1,6 +1,9 @@
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
+
 from src.routes.authRoute import authRouter
+
 
 @asynccontextmanager
 async def app_lifespan(app: FastAPI):
