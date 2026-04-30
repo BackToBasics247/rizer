@@ -20,8 +20,7 @@ class AuthService:
             raise ValueError("Register payload is required")
 
         username = register_payload.username
-        print("username", username)
-        if await self._authRepo.exists_with_username(username):
+        if self._authRepo.exists_with_username(username):
             raise UserAlreadyExistsException(f"user with {username} already exists")
 
         hashed_password = self._password_manager.hash_password(
@@ -32,5 +31,4 @@ class AuthService:
             **register_payload.model_dump(exclude={"password"}),
             hashed_password=hashed_password,
         )
-        print(new_user)
-        return await self._authRepo.add_user(new_user)
+        return self._authRepo.add_user(new_user)

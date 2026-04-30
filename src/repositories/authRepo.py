@@ -14,7 +14,7 @@ class AuthRepo:
     def __init__(self, db: Session) -> None:
         self._db = db
 
-    async def add_user(self, new_user: User) -> User:
+    def add_user(self, new_user: User) -> User:
         try:
             self._db.add(new_user)
             self._db.commit()
@@ -30,7 +30,7 @@ class AuthRepo:
             self._db.rollback()
             raise RuntimeError("Database error while creating user") from e
 
-    async def exists_with_username(self, username: str) -> bool:
+    def exists_with_username(self, username: str) -> bool:
         try:
             stmt = select(User).where(User.username == username)
             result = self._db.execute(stmt).scalar_one_or_none()

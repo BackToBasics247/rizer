@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 
-from src.schemas.authSchema import LoginPayload, RegisterPayload
+from src.schemas.authSchema import LoginPayload, RegisterPayload, UserResponse
 from src.services.authService import AuthService
 from src.util.getters import get_auth_service
 
@@ -23,17 +23,17 @@ async def login_user(
         pass
 
 
-@authRouter.post("/register")
+@authRouter.post("/register", response_model=UserResponse)
 async def register_user(
     register_payload: RegisterPayload,
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ):
     try:
         if not register_payload:
-            raise ValueError(f"Register payload is req in routes!")
-        response = await auth_service.create_user(register_payload)
-        if response:
-            return JSONResponse(content=response, status_code=201)
-        raise HTTPException(500, detail={"something went wrong"})
-    except:
-        pass
+            raise ValueError("Register payload is required in routes!")
+        user = await auth_service.create_user(register_payload)
+        return user
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating user: {str(e)}")
