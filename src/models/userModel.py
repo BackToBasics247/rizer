@@ -1,13 +1,14 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from uuid import UUID, uuid4
 
 from sqlalchemy import BOOLEAN
 from sqlalchemy import UUID as DB_UUID
 from sqlalchemy import DateTime, Integer, String, func
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
+from src.models.baseModel import Base
 
-class User(DeclarativeBase):
+class User(Base):
     __tablename__ = "users"
 
     id: Mapped[UUID] = mapped_column(DB_UUID(as_uuid=True), primary_key=True)
