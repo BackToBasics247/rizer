@@ -7,6 +7,7 @@ from uuid import UUID
 from src.exceptions.userExceptions import (
     UserAlreadyExistsException,
     UserNotFoundException,
+    DatabaseException,
 )
 from src.models.userModel import User
 
@@ -25,12 +26,11 @@ class AuthRepo:
 
         except IntegrityError as e:
             self._db.rollback()
-            # likely unique constraint violation
             raise UserAlreadyExistsException("User already exists") from e
 
         except SQLAlchemyError as e:
             self._db.rollback()
-            raise RuntimeError("Database error while creating user") from e
+            raise DatabaseException("Database error while creating user") from e
 
     def exists_with_username(self, username: str) -> User|None:
         try:
@@ -39,7 +39,7 @@ class AuthRepo:
             return result
 
         except SQLAlchemyError as e:
-            raise RuntimeError("Database error while checking user existence") from e
+            raise DatabaseException("Database error while checking user existence") from e
 
     def exists_with_userid(self, user_id: str) -> User|None:
         try:
@@ -48,26 +48,24 @@ class AuthRepo:
             return result
         
         except SQLAlchemyError as e:
-            raise RuntimeError("Database error while checking user existence") from e
+            raise DatabaseException("Database error while checking user existence") from e
         
     def exists_with_identifier(self, identifier: str) -> User | None:
         try:
-            # 1. Determine if the identifier is a valid UUID
             is_valid_uuid = False
+            uuid_obj = None
             try:
                 uuid_obj = UUID(identifier)
                 is_valid_uuid = True
             except ValueError:
                 pass
 
-            # 2. Build the query dynamically
             conditions = [User.username == identifier]
             if is_valid_uuid:
                 conditions.append(User.id == uuid_obj)
 
-            # 3. Execute with or_ logic
             stmt = select(User).where(or_(*conditions))
             return self._db.execute(stmt).scalar_one_or_none()
 
         except SQLAlchemyError as e:
-            raise RuntimeError("Database error while checking user existence") from e
+            raise DatabaseException("Database error while checking user existence") from e
