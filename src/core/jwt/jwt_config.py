@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from typing import Literal, LiteralString, Optional
+from typing import Literal
 
 from jose import JWTError
 from jose.jwt import decode, encode
@@ -21,7 +21,6 @@ class JwtService:
     def create_token(
         self,
         claims: dict,
-        expires_delta: timedelta,
         token_type: Literal["ACCESS", "REFRESH"] = "ACCESS",
     ) -> str:
         now = datetime.now(timezone.utc)
@@ -30,8 +29,7 @@ class JwtService:
                 "sub": claims["sub"],
                 "iat": now,
                 "type": token_type,
-                "is_admin": claims["is_admin"],
-                "exp": now + expires_delta,
+                "exp": now+self._ACCESS_TOKEN_EXPIRY_MIN,
             }
             return encode(
                 claims=payload, key=self._ACCESS_TOKEN_SECRET, algorithm=self._ALGORITHM
@@ -41,7 +39,7 @@ class JwtService:
                 "sub": claims["sub"],
                 "iat": now,
                 "type": token_type,
-                "exp": now + expires_delta,
+                "exp": now+self._REFRESH_TOKEN_EXPIRY_DAY,
             }
             return encode(
                 claims=payload,
@@ -75,3 +73,7 @@ class JwtService:
         if str(payload.get("type")).lower() == token_type.lower():
             return payload
         raise ValueError(f"Invalid token type!")
+
+
+def get_jwt_service() -> JwtService:
+    return JwtService()

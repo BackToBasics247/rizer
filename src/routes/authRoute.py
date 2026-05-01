@@ -18,9 +18,10 @@ async def login_user(
     try:
         if not login_payload:
             raise ValueError(f"Login payload is req in routes!")
-        pass
+        payload = await auth_service.login_user(loginPayload=login_payload)
+        return payload
     except:
-        pass
+        raise
 
 
 @authRouter.post("/register", response_model=UserResponse)
